@@ -71,3 +71,6 @@ crashlytics-build.properties
 # Temporary auto-generated Android Assets
 /[Aa]ssets/[Ss]treamingAssets/aa.meta
 /[Aa]ssets/[Ss]treamingAssets/aa/*
+/.idea/.idea.Mia-World.dir/.idea/encodings.xml
+/.idea/.idea.Mia-World.dir/.idea/indexLayout.xml
+/.idea/.idea.Mia-World.dir/.idea/vcs.xml
