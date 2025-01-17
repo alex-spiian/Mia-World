@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using MiraWorld.InputHandler;
 using UnityEngine;
 
@@ -21,6 +20,7 @@ namespace MiraWorld.Item
         private Vector3 _offset;
         private bool _isDragging;
         private bool _isInitialized;
+        private readonly RaycastHit2D[] _raycastHitResults = new RaycastHit2D[10];
 
         private void Awake()
         {
@@ -101,12 +101,12 @@ namespace MiraWorld.Item
         private bool IsFirstInOrder()
         {
             var pointerPosition = GetWorldPosition(_inputHandler.GetPointerPosition());
-            var hits = Physics2D.RaycastAll(pointerPosition, Vector2.zero, 0f, _draggableLayerMask);
+            var size = Physics2D.RaycastNonAlloc(pointerPosition, Vector2.zero, _raycastHitResults, 0f, _draggableLayerMask);
 
-            if (hits.Length == 0)
+            if (size == 0)
                 return false;
 
-            var firstItemTransform = hits.First().transform;
+            var firstItemTransform = _raycastHitResults[0].transform;
             return firstItemTransform == _transform;
         }
     }
