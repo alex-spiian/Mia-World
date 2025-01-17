@@ -33,56 +33,62 @@ namespace MiraWorld.Item
         {
             if (!_isInitialized)
                 return;
-
-            if (_inputHandler.IsPointerDown() && IsFirstInOrder())
-            {
-                StartDragging(_inputHandler.GetPointerPosition());
-            }
-
+            
             if (_isDragging)
             {
-                if (_inputHandler.IsPointerDragging())
-                {
-                    DragItem(_inputHandler.GetPointerPosition());
-                }
-
-                if (_inputHandler.IsPointerUp())
-                {
-                    StopDragging();
-                }
+                DragItem(_inputHandler.GetPointerPosition());
             }
         }
-        
+
+        private void OnDestroy()
+        {
+            _inputHandler.PointerUp -= OnPointerUp;
+            _inputHandler.PointerDown -= OnPointerDown;
+        }
+
         public void Initialize(IInputHandler inputHandler)
         {
             _inputHandler = inputHandler;
             _isInitialized = true;
+
+            _inputHandler.PointerUp += OnPointerUp;
+            _inputHandler.PointerDown += OnPointerDown;
         }
         
         public void SetSortingOrder(int order)
         {
             _spriteRenderer.sortingOrder = _minSortingOrder + order;
         }
-
-        private void StartDragging(Vector3 pointerPosition)
+        
+        private void OnPointerDown()
         {
-            _offset = transform.position - GetWorldPosition(pointerPosition);
-            _rigidbody.bodyType = RigidbodyType2D.Kinematic;
-            StartedDragging?.Invoke(this);
-            _isDragging = true;
-            SetSortingOrder(_maxSortingOrder);
+            if (IsFirstInOrder())
+            {
+                StartDragging();
+            }
         }
 
-        private void DragItem(Vector3 pointerPosition)
-        {
-            transform.position = GetWorldPosition(pointerPosition) + _offset;
-        }
-
-        private void StopDragging()
+        private void OnPointerUp()
         {
             _isDragging = false;
             _rigidbody.bodyType = RigidbodyType2D.Dynamic;
             SetSortingOrder(_minSortingOrder);
+        }
+
+        private void StartDragging()
+        {
+            var pointerPosition = _inputHandler.GetPointerPosition();
+            _offset = _transform.position - GetWorldPosition(pointerPosition);
+            _rigidbody.bodyType = RigidbodyType2D.Kinematic;
+            _isDragging = true;
+            SetSortingOrder(_maxSortingOrder);
+            
+            StartedDragging?.Invoke(this);
+        }
+
+        private void DragItem(Vector3 pointerPosition)
+        {
+            _transform.position = GetWorldPosition(pointerPosition) + _offset;
         }
 
         private Vector3 GetWorldPosition(Vector3 screenPosition)
