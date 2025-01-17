@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using MiraWorld.InputHandler;
 using UnityEngine;
 
@@ -15,30 +16,27 @@ namespace MiraWorld.Item
 
         private Rigidbody2D _rigidbody;
         private Camera _mainCamera;
-
+        private Transform _transform;
         private IInputHandler _inputHandler;
-
         private Vector3 _offset;
         private bool _isDragging;
+        private bool _isInitialized;
 
-        public void Initialize(IInputHandler inputHandler)
+        private void Awake()
         {
-            _mainCamera = Camera.main;
-            _inputHandler = inputHandler;
             _rigidbody = GetComponent<Rigidbody2D>();
+            _transform = transform;
+            _mainCamera = Camera.main;
         }
 
         private void Update()
         {
-            if (_inputHandler == null)
+            if (!_isInitialized)
                 return;
 
-            if (_inputHandler.IsPointerDown() && TryGetTopItemUnderPointer(out var topItem))
+            if (_inputHandler.IsPointerDown() && IsFirstInOrder())
             {
-                if (topItem == this)
-                {
-                    StartDragging(_inputHandler.GetPointerPosition());
-                }
+                StartDragging(_inputHandler.GetPointerPosition());
             }
 
             if (_isDragging)
@@ -53,6 +51,17 @@ namespace MiraWorld.Item
                     StopDragging();
                 }
             }
+        }
+        
+        public void Initialize(IInputHandler inputHandler)
+        {
+            _inputHandler = inputHandler;
+            _isInitialized = true;
+        }
+        
+        public void SetSortingOrder(int order)
+        {
+            _spriteRenderer.sortingOrder = _minSortingOrder + order;
         }
 
         private void StartDragging(Vector3 pointerPosition)
@@ -83,37 +92,16 @@ namespace MiraWorld.Item
             return worldPosition;
         }
         
-        private bool TryGetTopItemUnderPointer(out DraggableItem topItem)
+        private bool IsFirstInOrder()
         {
-            topItem = null;
-
             var pointerPosition = GetWorldPosition(_inputHandler.GetPointerPosition());
             var hits = Physics2D.RaycastAll(pointerPosition, Vector2.zero, 0f, _draggableLayerMask);
 
             if (hits.Length == 0)
                 return false;
 
-            var highestOrder = int.MinValue;
-            foreach (var hit in hits)
-            {
-                var item = hit.collider.GetComponent<DraggableItem>();
-                if (item != null)
-                {
-                    var order = item._spriteRenderer.sortingOrder;
-                    if (order > highestOrder)
-                    {
-                        highestOrder = order;
-                        topItem = item;
-                    }
-                }
-            }
-
-            return topItem != null;
-        }
-
-        public void SetSortingOrder(int order)
-        {
-            _spriteRenderer.sortingOrder = _minSortingOrder + order;
+            var firstItemTransform = hits.First().transform;
+            return firstItemTransform == _transform;
         }
     }
 }
