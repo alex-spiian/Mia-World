@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 5969094661818851468}
   - component: {fileID: 2144261479502259859}
   - component: {fileID: 1054292260285327521}
-  m_Layer: 3
+  m_Layer: 6
   m_Name: DraggableItem
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -50,7 +50,7 @@ MonoBehaviour:
   _spriteRenderer: {fileID: 3165459957258490217}
   _draggableLayerMask:
     serializedVersion: 2
-    m_Bits: 8
+    m_Bits: 64
   _minSortingOrder: 5
   _maxSortingOrder: 500
 --- !u!50 &2144261479502259859
@@ -137,7 +137,7 @@ GameObject:
   - component: {fileID: 4121294974995817814}
   - component: {fileID: 3165459957258490217}
   - component: {fileID: 8693312000724304803}
-  m_Layer: 3
+  m_Layer: 6
   m_Name: AppleSprite
   m_TagString: Untagged
   m_Icon: {fileID: 0}
